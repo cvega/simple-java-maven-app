@@ -12,7 +12,7 @@ on:
       - created
 
 jobs:
-  setup:
+  maven:
     runs-on: ubuntu-latest
     permissions:
       contents: read
