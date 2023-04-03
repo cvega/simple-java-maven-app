@@ -3,7 +3,6 @@ name: Maven CI/CD
 on:
   push:
     branches:
-      - 'main'
       - '**'
   pull_request:
     branches:
@@ -13,7 +12,7 @@ on:
       - created
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,18 +31,20 @@ jobs:
         server-id: github
         settings-path: ${{ github.workspace }}
 
-    - name: Cache Maven packages
+    - name: cache maven packages
       uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Build and test (Pull Request, Push to branch that is not master)
+    - name: mvn clean verify
       if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
+      # this only applies to pull requests and branches 
       run: mvn clean verify
 
-    - name: Build and deploy SNAPSHOT (Push to master)
+    - name: create snapshot
+      # create the snapshot for the dev branch
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       run: |
         git fetch --prune --unshallow --tags
@@ -55,20 +56,33 @@ jobs:
         # Increment the patch version
         NEW_VERSION=$(echo $LATEST_RELEASE | awk -F. -v OFS=. '{$NF+=1} 1')
         echo $NEW_VERSION
-
-        mvn versions:set -DnewVersion="${NEW_VERSION}-SNAPSHOT"
-        mvn clean deploy -s "${GITHUB_WORKSPACE}/settings.xml"
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
         
-    - name: Publish to GitHub Packages Apache Maven (Release)
+        # Get short HEAD
+        SHORT_HEAD=$(git rev-parse --short HEAD)
+        
+        # timestamp
+        TIMESTAMP=$(date "+%Y-%m-%d%H:%M:%S")
+
+        mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-SNAPSHOT"
+        mvn clean install
+        
+    - uses: actions/upload-artifact@v3
+      name: archive artifact
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      with:
+        name: maven-artifact
+        path: target/**     
+        
+    - name: publish release
       # Add a conditional expression to this step to ensure it only runs when a release is created
       if: github.event_name == 'release'
       run: |
         # Extract version from release tag (e.g., "v1.0.0" -> "1.0.0")
         VERSION=$(echo "${{ github.ref }}" | sed -e 's/refs\/tags\/v//')
+        
         # Set the project version to the release version
         mvn versions:set -DnewVersion=$VERSION-RELEASE
+        
         # Deploy the release to GitHub Packages
         mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
       env:
