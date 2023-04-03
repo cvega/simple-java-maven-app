@@ -61,7 +61,7 @@ jobs:
         SHORT_HEAD=$(git rev-parse --short HEAD)
         
         # timestamp
-        TIMESTAMP=$(date "+%Y-%m-%d%H:%M:%S")
+        TIMESTAMP=$(date "+%Y%m%d%H%M%S")
 
         mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-SNAPSHOT"
         mvn clean install
