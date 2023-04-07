@@ -44,8 +44,8 @@ jobs:
       run: mvn clean verify
 
     - name: create snapshot
-      # create the snapshot for the dev branch
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      # create the snapshot for the dev branch on release*
+      if: github.event_name == 'push' && github.ref == 'refs/heads/release*'
       run: |
         git fetch --prune --unshallow --tags
         
