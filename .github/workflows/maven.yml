@@ -72,11 +72,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-        git fetch --prune --unshallow --tags
-        
         # Get the latest release version
         LATEST_RELEASE=$(git describe --tags $(git rev-list --tags --max-count=1))
         echo $LATEST_RELEASE
+        
+        # Increment the patch version
+        NEW_VERSION=$(echo $LATEST_RELEASE | awk -F. -v OFS=. '{$NF+=1} 1')
+        echo $NEW_VERSION
         
         # Get short HEAD
         SHORT_HEAD=$(git rev-parse --short HEAD)
@@ -84,7 +86,10 @@ jobs:
         # timestamp
         TIMESTAMP=$(date "+%Y%m%d%H%M%S")
 
-        mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-RELEASE"
+        # Set the project version to the release version
+        mvn versions:set -DnewVersion=$VERSION-RELEASE
+        
+        # Deploy the release to GitHub Packages
         mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
     
     - uses: actions/upload-artifact@v3
