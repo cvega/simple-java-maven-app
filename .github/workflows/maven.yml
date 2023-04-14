@@ -69,6 +69,8 @@ jobs:
     - uses: actions/github-script@v6
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       id: tag-release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
       with:
         script: |
           github.rest.repos.createRelease({
