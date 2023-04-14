@@ -66,6 +66,17 @@ jobs:
         mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-SNAPSHOT"
         mvn clean install
     
+    - uses: actions/github-script@v6
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      id: tag-release
+      with:
+        script: |
+          github.rest.repos.createRelease({
+            owner: cvega,
+            repo: simple-java-maven-app,
+            tag_name: v0.0.7
+          })
+    
     - name: create release
       # create a release off the master branch
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -94,12 +105,4 @@ jobs:
         name: maven-artifact
         path: target/**     
     
-    - uses: actions/github-script@v6
-      id: tag-release
-      with:
-        script: |
-          github.rest.repos.createRelease({
-            owner: cvega,
-            repo: simple-java-maven-app,
-            tag_name: v0.0.7
-          })
+
