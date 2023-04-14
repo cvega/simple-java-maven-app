@@ -70,8 +70,8 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       id: tag-release
       with:
+        github-token: "${{ secrets.GITHUB_TOKEN }}"
         script: |
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
           github.rest.repos.createRelease({
             owner: "cvega",
             repo: "simple-java-maven-app",
