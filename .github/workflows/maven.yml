@@ -73,8 +73,6 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
         mvn versions:set -DnewVersion=${{ env.NEWEST_VERSION }}-RELEASE
- 
- 
         # Deploy the release to GitHub Packages
         mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
     
@@ -82,7 +80,7 @@ jobs:
       name: archive artifact
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       with:
-        name: maven-artifact
+        name: "maven-artifact-${{ env.NEWEST_VERSION }}-RELEASE"
         path: target/**     
     
 
