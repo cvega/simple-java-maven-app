@@ -80,16 +80,9 @@ jobs:
         
         # Increment the patch version
         NEW_VERSION=$(echo $LATEST_RELEASE | awk -F. -v OFS=. '{$NF+=1} 1')
-        echo $NEW_VERSION
-        
-        # Get short HEAD
-        SHORT_HEAD=$(git rev-parse --short HEAD)
-        
-        # timestamp
-        TIMESTAMP=$(date "+%Y%m%d%H%M%S")
 
         # Set the project version to the release version
-        mvn versions:set -DnewVersion=$VERSION-RELEASE
+        mvn versions:set -DnewVersion=$NEW_VERSION-RELEASE
         
         # Deploy the release to GitHub Packages
         mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
