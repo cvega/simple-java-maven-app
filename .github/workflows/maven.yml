@@ -93,18 +93,13 @@ jobs:
       with:
         name: maven-artifact
         path: target/**     
-        
-    - name: publish release
-      # Add a conditional expression to this step to ensure it only runs when a release is created
-      if: github.event_name == 'release'
-      run: |
-        # Extract version from release tag (e.g., "v1.0.0" -> "1.0.0")
-        VERSION=$(echo "${{ github.ref }}" | sed -e 's/refs\/tags\/v//')
-        
-        # Set the project version to the release version
-        mvn versions:set -DnewVersion=$VERSION-RELEASE
-        
-        # Deploy the release to GitHub Packages
-        mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    
+    - uses: actions/github-script@v6
+      id: tag-release
+      with:
+        script: |
+          github.rest.repos.createRelease({
+            owner: cvega,
+            repo: simple-java-maven-app,
+            tag_name: v0.0.7
+          })
