@@ -35,6 +35,13 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
+    - name: setup build env vars
+      run: |
+        git fetch --prune --unshallow --tags
+        echo "LATEST_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
+        echo "NEWEST_VERSION=$(echo $LATEST_VERSION | awk -F. -v OFS=. '{$NF+=1} 1')" >> $GITHUB_ENV
+        echo "SHORT_HEAD=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+    
     - name: mvn clean verify
       if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
       # this only applies to pull requests and branches 
@@ -44,23 +51,7 @@ jobs:
       # create the snapshot for the dev branch on release*
       if: github.event_name == 'push' && github.ref == 'refs/heads/release*'
       run: |
-        git fetch --prune --unshallow --tags
-        
-        # Get the latest release version
-        LATEST_RELEASE=$(git describe --tags $(git rev-list --tags --max-count=1))
-        echo $LATEST_RELEASE
-        
-        # Increment the patch version
-        NEW_VERSION=$(echo $LATEST_RELEASE | awk -F. -v OFS=. '{$NF+=1} 1')
-        echo $NEW_VERSION
-        
-        # Get short HEAD
-        SHORT_HEAD=$(git rev-parse --short HEAD)
-        
-        # timestamp
-        TIMESTAMP=$(date "+%Y%m%d%H%M%S")
-
-        mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-SNAPSHOT"
+        mvn versions:set -DnewVersion="${{ env.NEWEST_VERSION }}-${{ env.SHORT_HEAD }}-$(date "+%Y%m%d%H%M%S")-SNAPSHOT"
         mvn clean install
     
     - uses: actions/github-script@v6
@@ -72,7 +63,7 @@ jobs:
           github.rest.repos.createRelease({
             owner: "cvega",
             repo: "simple-java-maven-app",
-            tag_name: "v0.0.7"
+            tag_name: ${{ env.NEWEST_VERSION }}
           })
     
     - name: create release
@@ -81,17 +72,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-        git fetch --prune --unshallow --tags
-        
-        # Get the latest release version
-        LATEST_RELEASE=$(git describe --tags $(git rev-list --tags --max-count=1))
-        echo $LATEST_RELEASE
-        
-        # Increment the patch version
-        NEW_VERSION=$(echo $LATEST_RELEASE | awk -F. -v OFS=. '{$NF+=1} 1')
-
-        # Set the project version to the release version
-        mvn versions:set -DnewVersion=$NEW_VERSION-RELEASE
+        mvn versions:set -DnewVersion=${{ env.NEWEST_VERSION }}-RELEASE
         
         # Deploy the release to GitHub Packages
         mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
