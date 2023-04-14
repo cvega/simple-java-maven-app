@@ -69,6 +69,8 @@ jobs:
     - name: create release
       # create a release off the master branch
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
       run: |
         git fetch --prune --unshallow --tags
         
