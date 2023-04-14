@@ -83,7 +83,7 @@ jobs:
         TIMESTAMP=$(date "+%Y%m%d%H%M%S")
 
         mvn versions:set -DnewVersion="${NEW_VERSION}-${SHORT_HEAD}-${TIMESTAMP}-RELEASE"
-        mvn clean install
+        mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
     
     - uses: actions/upload-artifact@v3
       name: archive artifact
