@@ -66,7 +66,7 @@ jobs:
           github.rest.repos.createRelease({
             owner: "cvega",
             repo: "simple-java-maven-app",
-            tag_name: ${{ env.NEWEST_VERSION }}
+            tag_name: "${{ env.NEWEST_VERSION }}"
           })
     
     - name: create release
