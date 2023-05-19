@@ -23,8 +23,6 @@ jobs:
       with:
         java-version: 8
         distribution: 'adopt'
-        cache: 'maven'
-        server-id: github
         settings-path: ${{ github.workspace }}
 
     - name: setup build env vars
