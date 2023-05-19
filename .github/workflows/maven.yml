@@ -22,10 +22,12 @@ jobs:
       
     - name: Set up JDK 8
       uses: actions/setup-java@v3
+      env:
+        MAVEN_PATH: $MAVEN_CONFIG
       with:
         java-version: 8
         distribution: 'adopt'
-        settings-path: ${{ env.MAVEN_CONFIG }}
+        settings-path: $MAVEN_PATH
         
 
     - name: setup build env vars
