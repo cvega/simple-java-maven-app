@@ -25,7 +25,7 @@ jobs:
       with:
         java-version: 8
         distribution: 'adopt'
-        settings-path: ${{ github.workspace }}
+        settings-path: ${{ env.MAVEN_CONFIG }}
         
 
     - name: setup build env vars
@@ -66,7 +66,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
         mvn versions:set -DnewVersion=${{ env.RELEASE_VERSION }}-RELEASE
-        mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
+        mvn clean deploy -s $MAVEN_CONFIG/settings.xml -Drelease
     
     - uses: actions/upload-artifact@v3
       name: archive artifact
