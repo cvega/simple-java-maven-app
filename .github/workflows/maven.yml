@@ -63,10 +63,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-        mv ./.github/settings.xml ~/.m2
         mvn versions:set -DnewVersion=${{ env.RELEASE_VERSION }}-RELEASE
         # Deploy the release to GitHub Packages
-        mvn clean deploy -Drelease
+        mvn clean deploy -s $GITHUB_WORKSPACE/settings.xml -Drelease
     
     - uses: actions/upload-artifact@v3
       name: archive artifact
