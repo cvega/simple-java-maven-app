@@ -12,7 +12,7 @@ jobs:
   maven:
     runs-on: self-hosted
     container:
-      image: maven:3.6.3-jdk-8
+      image: maven:3.8.3-jdk-11
       volumes:
         - /tmp/.m2:/root/.m2
 
