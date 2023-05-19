@@ -17,6 +17,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: 8
+        distribution: 'adopt'
+        cache: 'maven'
+        server-id: github
 
     - name: setup build env vars
       run: |
