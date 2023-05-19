@@ -13,6 +13,8 @@ jobs:
     runs-on: self-hosted
     container:
       image: maven:3.6.3-jdk-8
+      volumes:
+        - /tmp/.m2:~/.m2
 
     steps:
     - name: Checkout code
@@ -24,6 +26,7 @@ jobs:
         java-version: 8
         distribution: 'adopt'
         settings-path: ${{ github.workspace }}
+        
 
     - name: setup build env vars
       run: |
