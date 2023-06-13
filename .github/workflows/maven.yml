@@ -10,7 +10,7 @@ on:
 
 jobs:
   maven:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: maven:3.8.3-jdk-11
       volumes:
